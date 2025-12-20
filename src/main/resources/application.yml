@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: boardgames
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/boardgames
+#    username: boardgameranks
+#    password: saunadoindio
