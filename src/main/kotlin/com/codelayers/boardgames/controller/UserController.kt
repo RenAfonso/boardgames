@@ -1,15 +1,22 @@
 package com.codelayers.boardgames.controller
 
-import com.codelayers.boardgames.controller.model.UserRank
+import com.codelayers.boardgames.controller.dto.GameRankingResponse
+import com.codelayers.boardgames.model.UserRank
+import com.codelayers.boardgames.service.RankingService
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.math.BigDecimal
 
 @RestController
 @RequestMapping("/rank")
-class UserController {
+class UserController(
+    private val rankingService: RankingService
+) {
 
     @GetMapping
     fun getUserRank(): ResponseEntity<UserRank> =
@@ -32,4 +39,24 @@ class UserController {
                 currentStreak = "W3"
             )
         )
+
+    @GetMapping("/{game}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    fun getFullGameRankings(
+        @PathVariable("game") game: String,
+        @RequestParam("variant", required = false) variants: List<String> = listOf("BASE")
+    ): ResponseEntity<GameRankingResponse>  {
+        val gameRankingResponse = rankingService.getOverallRanking(
+            gameCode = game,
+            variantCodes = variants
+        ).let { stats ->
+            GameRankingResponse(
+                game = game,
+                variants = variants,
+                stats = stats
+            )
+        }
+
+        return ResponseEntity.ok().body(gameRankingResponse)
+    }
 }

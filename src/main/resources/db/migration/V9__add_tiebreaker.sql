@@ -1,0 +1,2 @@
+ALTER TABLE matches
+    ADD COLUMN tiebreaker VARCHAR(20) NOT NULL DEFAULT 'NONE';

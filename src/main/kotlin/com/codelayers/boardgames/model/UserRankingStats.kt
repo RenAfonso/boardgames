@@ -1,4 +1,4 @@
-package com.codelayers.boardgames.controller.model
+package com.codelayers.boardgames.model
 
 import java.math.BigDecimal
 

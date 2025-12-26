@@ -1,4 +1,6 @@
-package com.codelayers.boardgames.controller.model
+package com.codelayers.boardgames.controller.dto
+
+import com.codelayers.boardgames.model.UserRankingStats
 
 data class GameRankingResponse(
     val game: String,

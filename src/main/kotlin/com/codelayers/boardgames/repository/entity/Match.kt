@@ -3,6 +3,8 @@ package com.codelayers.boardgames.repository.entity
 import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
@@ -35,5 +37,9 @@ data class Match(
     val players: List<MatchPlayer> = emptyList(),
 
     @Column(name = "played_at", nullable = false)
-    val playedAt: Instant
+    val playedAt: Instant,
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    val tiebreaker: MatchTiebreaker = MatchTiebreaker.NONE
 )
