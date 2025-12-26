@@ -1,5 +1,6 @@
 package com.codelayers.boardgames.repository
 
+import com.codelayers.boardgames.repository.entity.Game
 import com.codelayers.boardgames.repository.entity.GameRankingRow
 import com.codelayers.boardgames.repository.entity.LastMatchResultRow
 import com.codelayers.boardgames.repository.entity.MatchPlayer
@@ -86,4 +87,11 @@ interface RankingRepository : JpaRepository<MatchPlayer, UUID> {
         @Param("gameCode") gameCode: String,
         @Param("codes") codes: Collection<String>
     ): List<UUID>
+
+    @Query("""
+    SELECT g, gv
+    FROM Game g
+    LEFT JOIN FETCH g.variants gv
+""")
+    fun findAllGamesWithVariants(): List<Game>
 }
