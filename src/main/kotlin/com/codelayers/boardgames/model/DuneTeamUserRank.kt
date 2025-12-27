@@ -2,8 +2,8 @@ package com.codelayers.boardgames.model
 
 import java.math.BigDecimal
 
-data class UserRank(
-    val name: String,
+data class DuneTeamUserRank(
+    val userName: String,
     val winRate: BigDecimal,
     val gamesPlayed: Int,
     val gamesWon: Int,
@@ -17,5 +17,6 @@ data class UserRank(
     val gamesPlayedShaddam: Int,
     val averageVPPeasant: BigDecimal,
     val averageVPLeader: BigDecimal,
-    val currentStreak: String
-)
+    val currentStreak: Int,
+    val lastMatch: MatchResult
+) : UserStats

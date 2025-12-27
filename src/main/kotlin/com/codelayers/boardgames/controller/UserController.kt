@@ -1,13 +1,18 @@
 package com.codelayers.boardgames.controller
 
 import com.codelayers.boardgames.controller.dto.GameRankingResponse
-import com.codelayers.boardgames.model.UserRank
+import com.codelayers.boardgames.model.DuneTeamUserRank
+import com.codelayers.boardgames.model.MatchResult
+import com.codelayers.boardgames.model.UserStats
 import com.codelayers.boardgames.service.GameCatalogService
 import com.codelayers.boardgames.service.RankingService
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -21,10 +26,10 @@ class UserController(
 ) {
 
     @GetMapping
-    fun getUserRank(): ResponseEntity<UserRank> =
+    fun getUserRank(): ResponseEntity<DuneTeamUserRank> =
         ResponseEntity.ok().body(
-            UserRank(
-                name = "ren",
+            DuneTeamUserRank(
+                userName = "ren",
                 winRate = BigDecimal("62.50"),
                 gamesPlayed = 40,
                 gamesWon = 25,
@@ -38,7 +43,8 @@ class UserController(
                 gamesPlayedShaddam = 11,
                 averageVPPeasant = BigDecimal("8.25"),
                 averageVPLeader = BigDecimal("10.75"),
-                currentStreak = "W3"
+                currentStreak = 3,
+                lastMatch = MatchResult.WIN
             )
         )
 
@@ -62,9 +68,37 @@ class UserController(
         return ResponseEntity.ok().body(gameRankingResponse)
     }
 
+    @GetMapping("/{game}/individual")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    fun getPersonalGameRankings(
+        @PathVariable("game") game: String,
+        @RequestParam("variant", required = false) variants: List<String> = emptyList(),
+        @RequestHeader("username") username: String = SecurityContextHolder.getContext().authentication?.name ?: "",
+    ): ResponseEntity<UserStats>  {
+        val userStats = rankingService.getGameRankingStats(
+            gameCode = game,
+            variantCodes = variants,
+            userName = username,
+            isDuneMatch = isDuneMatch(game)
+        )
+
+        return ResponseEntity.ok().body(userStats)
+    }
+
+    @PostMapping("/{game}")
+    @PreAuthorize("hasRole('ADMIN')")
+    fun postMatchResults(
+        @PathVariable("game") game: String,
+        @RequestParam("variant") variantCodes: List<String>,
+
+    )
+
     private fun mapGameName(gameCode: String): String =
         gameCatalogService.getGame(gameCode).gameName
 
     private fun mapGameVariants(gameCode: String, variantCodes: List<String>): List<String> =
         gameCatalogService.getVariantNames(gameCode, variantCodes)
+
+    private fun isDuneMatch(gameCode: String): Boolean =
+        gameCode.contains("DUNE")
 }

@@ -9,4 +9,4 @@ data class UserRankingStats(
     val winRate: BigDecimal,
     val lastMatch: MatchResult,
     val currentStreak: Int
-)
+) : UserStats

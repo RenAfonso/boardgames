@@ -1,4 +1,4 @@
-package com.codelayers.boardgames.repository.entity
+package com.codelayers.boardgames.repository.entity.table
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
