@@ -1,14 +1,37 @@
+-- Add variant_id column if it doesn't exist
 ALTER TABLE dune_leaders
-    ADD COLUMN variant_id UUID;
+    ADD COLUMN IF NOT EXISTS variant_id UUID;
 
-ALTER TABLE dune_leaders
-    ADD CONSTRAINT fk_dune_leaders_variant
-        FOREIGN KEY (variant_id)
-            REFERENCES game_variants (id);
+-- Add foreign key constraint safely
+DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_constraint
+            WHERE conname = 'fk_dune_leaders_variant'
+        ) THEN
+            ALTER TABLE dune_leaders
+                ADD CONSTRAINT fk_dune_leaders_variant
+                    FOREIGN KEY (variant_id)
+                        REFERENCES game_variants (id);
+        END IF;
+    END
+$$;
 
-ALTER TABLE dune_leaders
-    ADD CONSTRAINT unique_variant_name
-        UNIQUE (variant_id, name);
+-- Add unique constraint safely
+DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_constraint
+            WHERE conname = 'unique_variant_name'
+        ) THEN
+            ALTER TABLE dune_leaders
+                ADD CONSTRAINT unique_variant_name
+                    UNIQUE (variant_id, name);
+        END IF;
+    END
+$$;
 
 -- Leaders for DUNE_UPRISING
 INSERT INTO dune_leaders (id, variant_id, name)
@@ -37,7 +60,7 @@ FROM game_variants gv
 ) AS l(name) ON true
 WHERE g.code = 'DUNE_UPRISING'
   AND gv.code IN ('BASE', 'BLOODLINES')
-ON CONFLICT (name) DO NOTHING;
+ON CONFLICT ON CONSTRAINT unique_variant_name DO NOTHING;
 
 -- Leaders for DUNE_IMPERIUM
 INSERT INTO dune_leaders (id, variant_id, name)
@@ -63,5 +86,4 @@ FROM game_variants gv
 ) AS l(name) ON true
 WHERE g.code = 'DUNE_IMPERIUM'
   AND gv.code IN ('BASE', 'RISE_OF_IX', 'IMMORTALITY')
-ON CONFLICT (name) DO NOTHING;
-
+ON CONFLICT ON CONSTRAINT unique_variant_name DO NOTHING;
