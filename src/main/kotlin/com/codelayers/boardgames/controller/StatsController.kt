@@ -1,17 +1,20 @@
 package com.codelayers.boardgames.controller
 
 import com.codelayers.boardgames.controller.dto.GameRankingResponse
+import com.codelayers.boardgames.controller.dto.MatchRequest
 import com.codelayers.boardgames.model.DuneTeamUserRank
 import com.codelayers.boardgames.model.MatchResult
 import com.codelayers.boardgames.model.UserStats
 import com.codelayers.boardgames.service.GameCatalogService
 import com.codelayers.boardgames.service.RankingService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -20,7 +23,7 @@ import java.math.BigDecimal
 
 @RestController
 @RequestMapping("/rank")
-class UserController(
+class StatsController(
     private val gameCatalogService: GameCatalogService,
     private val rankingService: RankingService
 ) {
@@ -29,7 +32,7 @@ class UserController(
     fun getUserRank(): ResponseEntity<DuneTeamUserRank> =
         ResponseEntity.ok().body(
             DuneTeamUserRank(
-                userName = "ren",
+                username = "ren",
                 winRate = BigDecimal("62.50"),
                 gamesPlayed = 40,
                 gamesWon = 25,
@@ -78,20 +81,28 @@ class UserController(
         val userStats = rankingService.getGameRankingStats(
             gameCode = game,
             variantCodes = variants,
-            userName = username,
+            username = username,
             isDuneMatch = isDuneMatch(game)
         )
 
         return ResponseEntity.ok().body(userStats)
     }
 
-    @PostMapping("/{game}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{game}/match")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     fun postMatchResults(
         @PathVariable("game") game: String,
         @RequestParam("variant") variantCodes: List<String>,
-
-    )
+        @RequestBody matchRequest: MatchRequest
+    ): ResponseEntity<Unit> {
+        gameCatalogService.insertGame(
+            matchRequest = matchRequest,
+            creator = SecurityContextHolder.getContext().authentication?.name ?: throw IllegalAccessException("Unknown user access"),
+            gameCode = game,
+            variantCodes = variantCodes
+        )
+        return ResponseEntity(HttpStatus.CREATED)
+    }
 
     private fun mapGameName(gameCode: String): String =
         gameCatalogService.getGame(gameCode).gameName

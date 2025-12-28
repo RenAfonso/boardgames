@@ -1,18 +1,51 @@
-ALTER TABLE dune_leaders
-    ADD COLUMN variant_id UUID;
+-- Add variant_id column if missing
+DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_name='dune_leaders' AND column_name='variant_id'
+        ) THEN
+            ALTER TABLE dune_leaders
+                ADD COLUMN variant_id UUID;
+        END IF;
+    END
+$$;
 
-ALTER TABLE dune_leaders
-    ADD CONSTRAINT fk_dune_leaders_variant
-        FOREIGN KEY (variant_id)
-            REFERENCES game_variants (id);
+-- Drop old unique constraint if it exists
+DO $$
+    BEGIN
+        IF EXISTS (
+            SELECT 1
+            FROM pg_constraint
+            WHERE conname='dune_leaders_name_key'
+        ) THEN
+            ALTER TABLE dune_leaders
+                DROP CONSTRAINT dune_leaders_name_key;
+        END IF;
+    END
+$$;
 
-ALTER TABLE dune_leaders
-    ADD CONSTRAINT unique_variant_name
-        UNIQUE (variant_id, name);
+-- Add new unique constraint if it doesn't exist
+DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM pg_constraint
+            WHERE conname='unique_variant_name'
+        ) THEN
+            ALTER TABLE dune_leaders
+                ADD CONSTRAINT unique_variant_name UNIQUE (variant_id, name);
+        END IF;
+    END
+$$;
 
--- Leaders for DUNE_UPRISING
+-- DUNE_UPRISING
 INSERT INTO dune_leaders (id, variant_id, name)
-SELECT gen_random_uuid(), gv.id, l.name
+SELECT
+    gen_random_uuid(),
+    gv.id,
+    l.name
 FROM game_variants gv
          JOIN games g ON g.id = gv.game_id
          JOIN (
@@ -36,12 +69,14 @@ FROM game_variants gv
         ('Count Hasimir Fenring')
 ) AS l(name) ON true
 WHERE g.code = 'DUNE_UPRISING'
-  AND gv.code IN ('BASE', 'BLOODLINES')
-ON CONFLICT (name) DO NOTHING;
+ON CONFLICT (variant_id, name) DO NOTHING;
 
--- Leaders for DUNE_IMPERIUM
+-- DUNE_IMPERIUM
 INSERT INTO dune_leaders (id, variant_id, name)
-SELECT gen_random_uuid(), gv.id, l.name
+SELECT
+    gen_random_uuid(),
+    gv.id,
+    l.name
 FROM game_variants gv
          JOIN games g ON g.id = gv.game_id
          JOIN (
@@ -62,6 +97,4 @@ FROM game_variants gv
         ('Viscount Hundro Moritani')
 ) AS l(name) ON true
 WHERE g.code = 'DUNE_IMPERIUM'
-  AND gv.code IN ('BASE', 'RISE_OF_IX', 'IMMORTALITY')
-ON CONFLICT (name) DO NOTHING;
-
+ON CONFLICT (variant_id, name) DO NOTHING;

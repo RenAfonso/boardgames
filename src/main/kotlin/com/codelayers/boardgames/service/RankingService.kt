@@ -63,10 +63,10 @@ class RankingService(
     fun getGameRankingStats(
         gameCode: String,
         variantCodes: List<String>,
-        userName: String,
+        username: String,
         isDuneMatch: Boolean
     ): UserStats {
-        val user = userRepository.findByUsername(userName) ?: throw UserNotFoundException("User $userName not found")
+        val user = userRepository.findByUsername(username) ?: throw UserNotFoundException("User $username not found")
         val variantIds = rankingRepository.findIdsByGameAndCodes(
             gameCode = gameCode,
             codes = variantCodes
@@ -94,14 +94,14 @@ class RankingService(
     private fun aggregateGameRanking(matchResults: List<MatchPlayerResult>): GameUserRank {
         require(matchResults.isNotEmpty()) { "There must be at least one match result" }
 
-        val userName = matchResults.first().username
+        val username = matchResults.first().username
         val gamesPlayed = matchResults.size
         val gamesWon = matchResults.count { it.won }
         val currentStreak = calculateCurrentStreak(matchResults)
         val lastMatch = lastMatchFrom(currentStreak)
 
         return GameUserRank(
-            userName = userName,
+            username = username,
             gamesPlayed = gamesPlayed,
             gamesWon = gamesWon,
             currentStreak = abs(currentStreak),
@@ -146,7 +146,7 @@ class RankingService(
         val lastMatch = lastMatchFrom(currentStreak)
 
         return DuneTeamUserRank(
-            userName = name,
+            username = name,
 
             gamesPlayed = gamesPlayed,
             gamesWon = gamesWon,

@@ -37,5 +37,5 @@ data class MatchPlayer(
     val won: Boolean,
 
     @OneToMany(mappedBy = "matchPlayer", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val dunePlayers: List<DuneMatchPlayer> = emptyList()
+    var dunePlayers: List<DuneMatchPlayer> = emptyList()
 )

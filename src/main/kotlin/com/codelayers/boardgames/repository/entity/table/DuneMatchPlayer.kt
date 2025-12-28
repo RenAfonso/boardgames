@@ -26,8 +26,5 @@ data class DuneMatchPlayer(
     val leader: DuneLeader,
 
     @Column(name = "team_side", nullable = false)
-    val teamSide: String,  // 'Fremen' or 'Emperor'
-
-    @Column(name = "spice_collected", nullable = false)
-    val spiceCollected: Int = 0
+    val teamSide: String,  // 'Fremen' or 'Emperor' or 'None'
 )

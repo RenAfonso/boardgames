@@ -35,7 +35,7 @@ data class Match(
     val createdBy: UUID,
 
     @OneToMany(mappedBy = "match", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val players: List<MatchPlayer> = emptyList(),
+    var players: List<MatchPlayer> = emptyList(),
 
     @Column(name = "played_at", nullable = false)
     val playedAt: Instant,

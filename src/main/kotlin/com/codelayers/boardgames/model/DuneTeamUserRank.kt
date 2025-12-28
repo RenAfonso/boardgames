@@ -3,7 +3,7 @@ package com.codelayers.boardgames.model
 import java.math.BigDecimal
 
 data class DuneTeamUserRank(
-    val userName: String,
+    val username: String,
     val winRate: BigDecimal,
     val gamesPlayed: Int,
     val gamesWon: Int,

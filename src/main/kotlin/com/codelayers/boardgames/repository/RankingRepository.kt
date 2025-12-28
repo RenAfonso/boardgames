@@ -7,6 +7,7 @@ import com.codelayers.boardgames.repository.entity.LastMatchResultRow
 import com.codelayers.boardgames.repository.entity.MatchPlayerResult
 import com.codelayers.boardgames.repository.entity.table.MatchPlayer
 import com.codelayers.boardgames.repository.entity.MatchResultRow
+import com.codelayers.boardgames.repository.entity.table.GameVariant
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
@@ -171,4 +172,21 @@ interface RankingRepository : JpaRepository<MatchPlayer, UUID> {
     LEFT JOIN FETCH g.variants gv
 """)
     fun findAllGamesWithVariants(): List<Game>
+
+    @Query("""
+    SELECT gv 
+    FROM GameVariant gv
+    JOIN gv.game g
+    WHERE g.code = :gameCode
+      AND gv.code = :variantCode
+""")
+    fun findVariantByGameCodeAndVariantCode(
+        @Param("gameCode") gameCode: String,
+        @Param("variantCode") variantCode: String
+    ): GameVariant?
+
+    @Query("SELECT g FROM Game g WHERE g.code = :gameCode")
+    fun findGameByCode(@Param("gameCode") gameCode: String): Game?
+
+
 }
