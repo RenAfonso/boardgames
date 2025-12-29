@@ -1,7 +1,19 @@
 spring:
   application:
     name: boardgames
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/boardgames
-#    username: boardgameranks
-#    password: saunadoindio
+spring:
+  application:
+    name: boardgames
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  config:
+    import: optional:dotenv:.env
+  flyway:
+    out-of-order: true
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-minutes: 60
