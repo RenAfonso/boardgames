@@ -1,15 +1,10 @@
 spring:
   application:
     name: boardgames
-spring:
-  application:
-    name: boardgames
   datasource:
     url: ${POSTGRES_URL}
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
-  config:
-    import: optional:dotenv:.env
   flyway:
     out-of-order: true
 

@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: boardgames
+  datasource:
+    url: jdbc:postgresql://localhost:5432/boardgames
+    username: boardgameranks
+    password: saunadoindio
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: false
+    out-of-order: true
+
+security:
+  jwt:
+    secret: test-secret
+    expiration-minutes: 60
